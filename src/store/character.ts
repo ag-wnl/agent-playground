@@ -1,6 +1,5 @@
 import { Character } from "@/contexts/type";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 const sampleObject = {
   name: "TrollDetective.Exe",
@@ -317,15 +316,8 @@ interface CharacterStates {
   setCharacter: (newCharacter: Character | null) => void;
 }
 
-export const useCharacterStore = create(
-  persist<CharacterStates>(
-    (set) => ({
-      character: sampleObject,
-      setCharacter: (newCharacter: Character | null) =>
-        set({ character: newCharacter }),
-    }),
-    {
-      name: "character-store",
-    }
-  )
-);
+export const useCharacterStore = create<CharacterStates>((set) => ({
+  character: sampleObject,
+  setCharacter: (newCharacter: Character | null) =>
+    set({ character: newCharacter }),
+}));
