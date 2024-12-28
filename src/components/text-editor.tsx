@@ -1,7 +1,6 @@
 "use client";
-
-import { useCharacterValue } from "@/contexts/character";
 import { Character } from "@/contexts/type";
+import { useCharacterStore } from "@/store/character";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 
@@ -11,7 +10,7 @@ const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
 });
 
 export default function JSONEditorComponent() {
-  const { character, setCharacter } = useCharacterValue();
+  const { character, setCharacter } = useCharacterStore();
 
   const [json, setJson] = useState(JSON.stringify(character, null, 2));
 

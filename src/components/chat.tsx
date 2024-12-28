@@ -5,8 +5,8 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { generateMessageResponse } from "@/utils/generate-text";
 import { ModelClass } from "@/utils/types";
-import { useCharacterValue } from "@/contexts/character";
 import { Character } from "@/contexts/type";
+import { useCharacterStore } from "@/store/character";
 
 type TextResponse = {
   text: string;
@@ -83,11 +83,15 @@ export default function Chat() {
   const [messages, setMessages] = useState<TextResponse[]>([]);
   const [isLoading, setLoading] = useState<boolean>(false);
 
-  const { character } = useCharacterValue();
+  const { character } = useCharacterStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
+
+    if (!character) {
+      return;
+    }
 
     const userMsg = input;
 
