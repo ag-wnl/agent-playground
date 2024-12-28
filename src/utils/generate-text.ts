@@ -200,7 +200,7 @@ export async function generateText({
     );
     context = await trimTokens(context, max_context_length, "gpt-4o");
 
-    let response: string;
+    let response: string = "";
     console.debug(
       `Using provider: ${provider}, model: ${model}, temperature: ${temperature}, max response length: ${max_response_length}`
     );

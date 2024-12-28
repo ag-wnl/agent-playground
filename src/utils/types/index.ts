@@ -1,5 +1,3 @@
-import { Readable } from "stream";
-
 /**
  * Represents a UUID string in the format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
  */
@@ -364,7 +362,7 @@ export interface MessageExample {
  * Handler function type for processing messages
  */
 export type Handler = (
-  runtime: IAgentRuntime,
+  runtime: string,
   message: Memory,
   state?: State,
   options?: { [key: string]: unknown },
@@ -376,6 +374,7 @@ export type Handler = (
  */
 export type HandlerCallback = (
   response: Content,
+  /* eslint-disable-next-line */
   files?: any
 ) => Promise<Memory[]>;
 
@@ -383,7 +382,7 @@ export type HandlerCallback = (
  * Validator function type for actions/evaluators
  */
 export type Validator = (
-  runtime: IAgentRuntime,
+  runtime: string,
   message: Memory,
   state?: State
 ) => Promise<boolean>;
@@ -456,7 +455,8 @@ export interface Evaluator {
  */
 export interface Provider {
   /** Data retrieval function */
-  get: (runtime: IAgentRuntime, message: Memory, state?: State) => Promise<any>;
+  /* eslint-disable-next-line */
+  get: (runtime: string, message: Memory, state?: State) => Promise<any>;
 }
 
 /**
@@ -499,6 +499,7 @@ export interface Account {
   username: string;
 
   /** Optional additional details */
+  /* eslint-disable-next-line */
   details?: { [key: string]: any };
 
   /** Optional email */
@@ -558,10 +559,10 @@ export type Media = {
  */
 export type Client = {
   /** Start client connection */
-  start: (runtime?: IAgentRuntime) => Promise<unknown>;
+  start: (runtime?: string) => Promise<unknown>;
 
   /** Stop client connection */
-  stop: (runtime?: IAgentRuntime) => Promise<unknown>;
+  stop: (runtime?: string) => Promise<unknown>;
 };
 
 /**
@@ -582,9 +583,6 @@ export type Plugin = {
 
   /** Optional evaluators */
   evaluators?: Evaluator[];
-
-  /** Optional services */
-  services?: Service[];
 
   /** Optional clients */
   clients?: Client[];
@@ -694,11 +692,6 @@ export type Character = {
     };
     model?: string;
     embeddingModel?: string;
-    chains?: {
-      evm?: any[];
-      solana?: any[];
-      [key: string]: any[];
-    };
   };
 
   /** Optional client-specific config */
@@ -733,383 +726,6 @@ export type Character = {
   scanTwitterAccounts?: string[];
   ecosystem?: string;
 };
-
-/**
- * Interface for database operations
- */
-export interface IDatabaseAdapter {
-  /** Database instance */
-  db: any;
-
-  /** Optional initialization */
-  init(): Promise<void>;
-
-  /** Close database connection */
-  close(): Promise<void>;
-
-  /** Get account by ID */
-  getAccountById(userId: UUID): Promise<Account | null>;
-
-  /** Create new account */
-  createAccount(account: Account): Promise<boolean>;
-
-  /** Get memories matching criteria */
-  getMemories(params: {
-    roomId: UUID;
-    count?: number;
-    unique?: boolean;
-    tableName: string;
-    agentId: UUID;
-    start?: number;
-    end?: number;
-  }): Promise<Memory[]>;
-
-  getMemoryById(id: UUID): Promise<Memory | null>;
-
-  getMemoriesByRoomIds(params: {
-    tableName: string;
-    agentId: UUID;
-    roomIds: UUID[];
-  }): Promise<Memory[]>;
-
-  getCachedEmbeddings(params: {
-    query_table_name: string;
-    query_threshold: number;
-    query_input: string;
-    query_field_name: string;
-    query_field_sub_name: string;
-    query_match_count: number;
-  }): Promise<{ embedding: number[]; levenshtein_score: number }[]>;
-
-  log(params: {
-    body: { [key: string]: unknown };
-    userId: UUID;
-    roomId: UUID;
-    type: string;
-  }): Promise<void>;
-
-  getActorDetails(params: { roomId: UUID }): Promise<Actor[]>;
-
-  searchMemories(params: {
-    tableName: string;
-    agentId: UUID;
-    roomId: UUID;
-    embedding: number[];
-    match_threshold: number;
-    match_count: number;
-    unique: boolean;
-  }): Promise<Memory[]>;
-
-  updateGoalStatus(params: { goalId: UUID; status: GoalStatus }): Promise<void>;
-
-  searchMemoriesByEmbedding(
-    embedding: number[],
-    params: {
-      match_threshold?: number;
-      count?: number;
-      roomId?: UUID;
-      agentId?: UUID;
-      unique?: boolean;
-      tableName: string;
-    }
-  ): Promise<Memory[]>;
-
-  createMemory(
-    memory: Memory,
-    tableName: string,
-    unique?: boolean
-  ): Promise<void>;
-
-  removeMemory(memoryId: UUID, tableName: string): Promise<void>;
-
-  removeAllMemories(roomId: UUID, tableName: string): Promise<void>;
-
-  countMemories(
-    roomId: UUID,
-    unique?: boolean,
-    tableName?: string
-  ): Promise<number>;
-
-  getGoals(params: {
-    agentId: UUID;
-    roomId: UUID;
-    userId?: UUID | null;
-    onlyInProgress?: boolean;
-    count?: number;
-  }): Promise<Goal[]>;
-
-  updateGoal(goal: Goal): Promise<void>;
-
-  createGoal(goal: Goal): Promise<void>;
-
-  removeGoal(goalId: UUID): Promise<void>;
-
-  removeAllGoals(roomId: UUID): Promise<void>;
-
-  getRoom(roomId: UUID): Promise<UUID | null>;
-
-  createRoom(roomId?: UUID): Promise<UUID>;
-
-  removeRoom(roomId: UUID): Promise<void>;
-
-  getRoomsForParticipant(userId: UUID): Promise<UUID[]>;
-
-  getRoomsForParticipants(userIds: UUID[]): Promise<UUID[]>;
-
-  addParticipant(userId: UUID, roomId: UUID): Promise<boolean>;
-
-  removeParticipant(userId: UUID, roomId: UUID): Promise<boolean>;
-
-  getParticipantsForAccount(userId: UUID): Promise<Participant[]>;
-
-  getParticipantsForRoom(roomId: UUID): Promise<UUID[]>;
-
-  getParticipantUserState(
-    roomId: UUID,
-    userId: UUID
-  ): Promise<"FOLLOWED" | "MUTED" | null>;
-
-  setParticipantUserState(
-    roomId: UUID,
-    userId: UUID,
-    state: "FOLLOWED" | "MUTED" | null
-  ): Promise<void>;
-
-  createRelationship(params: { userA: UUID; userB: UUID }): Promise<boolean>;
-
-  getRelationship(params: {
-    userA: UUID;
-    userB: UUID;
-  }): Promise<Relationship | null>;
-
-  getRelationships(params: { userId: UUID }): Promise<Relationship[]>;
-}
-
-export interface IDatabaseCacheAdapter {
-  getCache(params: { agentId: UUID; key: string }): Promise<string | undefined>;
-
-  setCache(params: {
-    agentId: UUID;
-    key: string;
-    value: string;
-  }): Promise<boolean>;
-
-  deleteCache(params: { agentId: UUID; key: string }): Promise<boolean>;
-}
-
-export interface IMemoryManager {
-  runtime: IAgentRuntime;
-  tableName: string;
-  constructor: Function;
-
-  addEmbeddingToMemory(memory: Memory): Promise<Memory>;
-
-  getMemories(opts: {
-    roomId: UUID;
-    count?: number;
-    unique?: boolean;
-    start?: number;
-    end?: number;
-  }): Promise<Memory[]>;
-
-  getCachedEmbeddings(
-    content: string
-  ): Promise<{ embedding: number[]; levenshtein_score: number }[]>;
-
-  getMemoryById(id: UUID): Promise<Memory | null>;
-  getMemoriesByRoomIds(params: { roomIds: UUID[] }): Promise<Memory[]>;
-  searchMemoriesByEmbedding(
-    embedding: number[],
-    opts: {
-      match_threshold?: number;
-      count?: number;
-      roomId: UUID;
-      unique?: boolean;
-    }
-  ): Promise<Memory[]>;
-
-  createMemory(memory: Memory, unique?: boolean): Promise<void>;
-
-  removeMemory(memoryId: UUID): Promise<void>;
-
-  removeAllMemories(roomId: UUID): Promise<void>;
-
-  countMemories(roomId: UUID, unique?: boolean): Promise<number>;
-}
-
-export type CacheOptions = {
-  expires?: number;
-};
-
-export interface ICacheManager {
-  get<T = unknown>(key: string): Promise<T | undefined>;
-  set<T>(key: string, value: T, options?: CacheOptions): Promise<void>;
-  delete(key: string): Promise<void>;
-}
-
-export abstract class Service {
-  private static instance: Service | null = null;
-
-  static get serviceType(): ServiceType {
-    throw new Error("Service must implement static serviceType getter");
-  }
-
-  public static getInstance<T extends Service>(): T {
-    if (!Service.instance) {
-      Service.instance = new (this as any)();
-    }
-    return Service.instance as T;
-  }
-
-  get serviceType(): ServiceType {
-    return (this.constructor as typeof Service).serviceType;
-  }
-
-  // Add abstract initialize method that must be implemented by derived classes
-  abstract initialize(runtime: IAgentRuntime): Promise<void>;
-}
-
-export interface IAgentRuntime {
-  // Properties
-  agentId: UUID;
-  serverUrl: string;
-  databaseAdapter: IDatabaseAdapter;
-  token: string | null;
-  modelProvider: ModelProviderName;
-  imageModelProvider: ModelProviderName;
-  character: Character;
-  providers: Provider[];
-  actions: Action[];
-  evaluators: Evaluator[];
-  plugins: Plugin[];
-
-  messageManager: IMemoryManager;
-  descriptionManager: IMemoryManager;
-  documentsManager: IMemoryManager;
-  knowledgeManager: IMemoryManager;
-  loreManager: IMemoryManager;
-
-  cacheManager: ICacheManager;
-
-  services: Map<ServiceType, Service>;
-
-  initialize(): Promise<void>;
-
-  registerMemoryManager(manager: IMemoryManager): void;
-
-  getMemoryManager(name: string): IMemoryManager | null;
-
-  getService<T extends Service>(service: ServiceType): T | null;
-
-  registerService(service: Service): void;
-
-  getSetting(key: string): string | null;
-
-  // Methods
-  getConversationLength(): number;
-
-  processActions(
-    message: Memory,
-    responses: Memory[],
-    state?: State,
-    callback?: HandlerCallback
-  ): Promise<void>;
-
-  evaluate(
-    message: Memory,
-    state?: State,
-    didRespond?: boolean
-  ): Promise<string[]>;
-
-  ensureParticipantExists(userId: UUID, roomId: UUID): Promise<void>;
-
-  ensureUserExists(
-    userId: UUID,
-    userName: string | null,
-    name: string | null,
-    source: string | null
-  ): Promise<void>;
-
-  registerAction(action: Action): void;
-
-  ensureConnection(
-    userId: UUID,
-    roomId: UUID,
-    userName?: string,
-    userScreenName?: string,
-    source?: string
-  ): Promise<void>;
-
-  ensureParticipantInRoom(userId: UUID, roomId: UUID): Promise<void>;
-
-  ensureRoomExists(roomId: UUID): Promise<void>;
-
-  composeState(
-    message: Memory,
-    additionalKeys?: { [key: string]: unknown }
-  ): Promise<State>;
-
-  updateRecentMessageState(state: State): Promise<State>;
-}
-
-export interface IImageDescriptionService extends Service {
-  describeImage(
-    imageUrl: string
-  ): Promise<{ title: string; description: string }>;
-}
-
-export interface ITranscriptionService extends Service {
-  transcribeAttachment(audioBuffer: ArrayBuffer): Promise<string | null>;
-  transcribeAttachmentLocally(audioBuffer: ArrayBuffer): Promise<string | null>;
-  transcribe(audioBuffer: ArrayBuffer): Promise<string | null>;
-  transcribeLocally(audioBuffer: ArrayBuffer): Promise<string | null>;
-}
-
-export interface IVideoService extends Service {
-  isVideoUrl(url: string): boolean;
-  fetchVideoInfo(url: string): Promise<Media>;
-  downloadVideo(videoInfo: Media): Promise<string>;
-  processVideo(url: string, runtime: IAgentRuntime): Promise<Media>;
-}
-
-export interface ITextGenerationService extends Service {
-  initializeModel(): Promise<void>;
-  queueMessageCompletion(
-    context: string,
-    temperature: number,
-    stop: string[],
-    frequency_penalty: number,
-    presence_penalty: number,
-    max_tokens: number
-  ): Promise<any>;
-  queueTextCompletion(
-    context: string,
-    temperature: number,
-    stop: string[],
-    frequency_penalty: number,
-    presence_penalty: number,
-    max_tokens: number
-  ): Promise<string>;
-  getEmbeddingResponse(input: string): Promise<number[] | undefined>;
-}
-
-export interface IBrowserService extends Service {
-  closeBrowser(): Promise<void>;
-  getPageContent(
-    url: string,
-    runtime: IAgentRuntime
-  ): Promise<{ title: string; description: string; bodyContent: string }>;
-}
-
-export interface ISpeechService extends Service {
-  getInstance(): ISpeechService;
-  generate(runtime: IAgentRuntime, text: string): Promise<Readable>;
-}
-
-export interface IPdfService extends Service {
-  getInstance(): IPdfService;
-  convertPdfToText(pdfBuffer: Buffer): Promise<string>;
-}
 
 export type SearchResult = {
   title: string;
@@ -1155,8 +771,4 @@ export interface ActionResponse {
   retweet: boolean;
   quote?: boolean;
   reply?: boolean;
-}
-
-export interface ISlackService extends Service {
-  client: any;
 }
