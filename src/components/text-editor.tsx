@@ -11,14 +11,12 @@ const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
 
 export default function JSONEditorComponent() {
   const { character, setCharacter } = useCharacterStore();
-
   const [json, setJson] = useState(JSON.stringify(character, null, 2));
 
   const handleEditorChange = (value: string | undefined) => {
     if (value) {
-      setJson(value);
-
       try {
+        setJson(value);
         const parsedJson: Character = JSON.parse(value);
         setCharacter(parsedJson);
       } catch (error) {

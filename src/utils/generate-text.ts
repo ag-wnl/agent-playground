@@ -474,11 +474,9 @@ export async function generateText({
 
 export async function generateMessageResponse({
   context,
-  modelClass,
   character,
 }: {
   context: string;
-  modelClass: ModelClass;
   character: Character;
 }): Promise<Content> {
   const max_context_length =
@@ -492,7 +490,7 @@ export async function generateMessageResponse({
       const response = await generateText({
         context,
         provider: ModelProviderName.GOOGLE,
-        modelClass: modelClass,
+        modelClass: ModelClass.MEDIUM,
         character,
       });
       // try parsing the response as JSON, if null then try again

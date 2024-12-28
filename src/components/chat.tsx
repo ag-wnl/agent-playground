@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { generateMessageResponse } from "@/utils/generate-text";
-import { ModelClass } from "@/utils/types";
 import { Character } from "@/contexts/type";
 import { useCharacterStore } from "@/store/character";
 
@@ -108,15 +106,30 @@ export default function Chat() {
     try {
       const context = formContext(character, messages, userMsg);
 
-      // generate output:
-      const agentResponse = await generateMessageResponse({
+      const requestBody = {
         context,
-        modelClass: ModelClass.MEDIUM,
-        character: character,
+        character,
+      };
+
+      const res = await fetch("/api/generate-response", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
       });
 
+      if (!res.ok) {
+        throw new Error("Failed to fetch response");
+      }
+
+      const data = await res.json();
+
+      // Generate output
+      const llmResponse = data.text;
+
       const response: TextResponse = {
-        text: agentResponse.text,
+        text: llmResponse,
         user: "agent",
       };
 
