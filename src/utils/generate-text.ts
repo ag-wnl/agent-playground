@@ -159,7 +159,7 @@ export async function generateText({
   });
 
   const endpoint = models[provider].endpoint;
-  const model = models[provider].model[ModelClass.MEDIUM];
+  const model = models[provider].model[ModelClass.SMALL];
 
   //   // if runtime.getSetting("LLAMACLOUD_MODEL_LARGE") is true and modelProvider is LLAMACLOUD, then use the large model
   //   if (
@@ -482,7 +482,7 @@ export async function generateMessageResponse({
   const max_context_length =
     models[ModelProviderName.GOOGLE].settings.maxInputTokens;
   context = trimTokens(context, max_context_length, "gpt-4o");
-  let retryLength = 1000; // exponential backoff
+
   while (true) {
     try {
       console.log("Generating message response..");
@@ -496,17 +496,14 @@ export async function generateMessageResponse({
       // try parsing the response as JSON, if null then try again
       const parsedContent = parseJSONObjectFromText(response) as Content;
       if (!parsedContent) {
-        console.debug("parsedContent is null, retrying");
-        continue;
+        throw new Error("Error occured in generatin post");
       }
 
       return parsedContent;
     } catch (error) {
       console.error("ERROR:", error);
       // wait for 2 seconds
-      retryLength *= 2;
-      await new Promise((resolve) => setTimeout(resolve, retryLength));
-      console.debug("Retrying...");
+      throw new Error("Error occured in generating post");
     }
   }
 }
