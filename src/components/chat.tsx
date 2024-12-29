@@ -86,7 +86,9 @@ function formPostContext(character: Character, posts: TextResponse[]) {
     }. Do not add commentary or acknowledge this request, just write the post.
     Your response should not contain any questions. Brief, concise statements only. The total character count MUST be less than 200. No emojis. Use \\n\\n (double spaces) between statements.
     
-  ` + +`${character.templates?.twitterPostTemplate ?? ""}`;
+  ` +
+    `${character.templates?.twitterPostTemplate ?? ""}` +
+    messageCompletionFooter;
 
   return template;
 }
