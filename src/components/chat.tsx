@@ -217,7 +217,7 @@ export default function Chat() {
           Chat
         </TabsTrigger>
         <TabsTrigger value="posts" className="w-full">
-          Posts
+          Generate Posts
         </TabsTrigger>
       </TabsList>
 
