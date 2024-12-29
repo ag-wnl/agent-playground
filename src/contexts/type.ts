@@ -37,9 +37,9 @@ export type Character = {
   /** Character background lore */
   lore: string[];
   /** Example messages */
-  messageExamples: MessageExample[][];
+  messageExamples?: MessageExample[][];
   /** Example posts */
-  postExamples: string[];
+  postExamples?: string[];
   /** Known topics */
   topics: string[];
   /** Character traits */
@@ -49,7 +49,7 @@ export type Character = {
   /** Supported client platforms */
   clients?: Clients[];
   /** Available plugins */
-  plugins: Plugin[];
+  plugins?: Plugin[];
   /** Optional configuration */
   settings?: {
     secrets?: {
